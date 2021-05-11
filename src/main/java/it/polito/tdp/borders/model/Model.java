@@ -1,11 +1,19 @@
 package it.polito.tdp.borders.model;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.jgrapht.Graphs;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.EdgeTraversalEvent;
+import org.jgrapht.event.TraversalListener;
+import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 
 import it.polito.tdp.borders.db.BordersDAO;
 
@@ -14,6 +22,7 @@ public class Model {
 	private SimpleGraph<Country, DefaultEdge> grafo;
 	private BordersDAO dao;
 	private Map<Integer, Country> idMap;
+	private Map<Country, Country> visita;
 
 	public Model() {
 		dao = new BordersDAO();
@@ -39,6 +48,74 @@ public class Model {
 		return grafo;
 	}
 
+	public int getNumberOfConnectedComponents() {
+		if (grafo == null)
+			throw new RuntimeException("Grafo non esistente");
+		
+		ConnectivityInspector<Country, DefaultEdge> ci = new ConnectivityInspector<Country, DefaultEdge>(grafo);
+		return ci.connectedSets().size();
+	}
+	
+	public List<Country> trovaPercorso(Country c1) {
+		
+		List<Country> percorso = new LinkedList<>();
+		BreadthFirstIterator<Country, DefaultEdge> it = new BreadthFirstIterator<>(grafo, c1);
+		
+		visita = new HashMap<>();
+		visita.put(c1, null);
+		
+		it.addTraversalListener(new TraversalListener<Country, DefaultEdge>(){
+
+			@Override
+			public void connectedComponentFinished(ConnectedComponentTraversalEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void connectedComponentStarted(ConnectedComponentTraversalEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void edgeTraversed(EdgeTraversalEvent<DefaultEdge> e) {
+				Country country1 = grafo.getEdgeSource(e.getEdge());
+				Country country2 = grafo.getEdgeTarget(e.getEdge());
+				
+				if(visita.containsKey(country1) && !visita.containsKey(country2)) {
+					visita.put(country2, country1);
+				} else if(visita.containsKey(country2) && !visita.containsKey(country1)) {
+					visita.put(country1, country2);
+				}
+				
+			}
+
+			@Override
+			public void vertexTraversed(VertexTraversalEvent<Country> e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void vertexFinished(VertexTraversalEvent<Country> e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+		
+		while(it.hasNext()) {
+			percorso.add(it.next());
+		}
+		
+		if(!visita.containsKey(c1) ) {
+			return null;
+		}
+		
+		return percorso;
+	}
+	
 	
 
 }
