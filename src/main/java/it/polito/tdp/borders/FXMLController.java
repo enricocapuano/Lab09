@@ -4,6 +4,10 @@ package it.polito.tdp.borders;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+
+import it.polito.tdp.borders.model.Country;
 import it.polito.tdp.borders.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,7 +32,27 @@ public class FXMLController {
 
     @FXML
     void doCalcolaConfini(ActionEvent event) {
-
+    	String year = txtAnno.getText();
+    	int anno;
+    	String s = "";
+    	try {
+    		anno = Integer.parseInt(year);
+    	}catch(NumberFormatException e) {
+    		txtResult.setText("Errore nella scrittura dell'anno");
+    		throw new RuntimeException("Errore di scrittura");
+    	}
+    	
+    	if(anno <= 2016 && anno >= 1816) {
+    		model.creaGrafo(anno);
+    		Graph<Country, DefaultEdge> grafo = model.getGrafo();
+    		s += "# vertici : "+model.getGrafo().vertexSet().size()+"\n# archi : "+model.getGrafo().edgeSet().size()+"\n";
+    		for(Country c : grafo.vertexSet()) {
+    			s += c.getNome()+" "+grafo.degreeOf(c)+"\n";
+    		}
+    	}
+    	
+    	txtResult.setText(s);
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
