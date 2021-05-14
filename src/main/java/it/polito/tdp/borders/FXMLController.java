@@ -74,7 +74,7 @@ public class FXMLController {
     void doTrova(ActionEvent event) {
     	txtResult.clear();
     	Country c = countryBox.getValue();
-    	List<Country> percorso = model.trovaPercorso(c);
+    	List<Country> percorso = model.trovaPercorso1(c);
     	String s = "Paesi raggiungibili: "+percorso.size()+"\n";
     	
     	for(Country cc : percorso) {

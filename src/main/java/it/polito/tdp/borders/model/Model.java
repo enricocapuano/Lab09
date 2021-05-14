@@ -23,6 +23,7 @@ public class Model {
 	private BordersDAO dao;
 	private Map<Integer, Country> idMap;
 	private Map<Country, Country> visita;
+	private List<Country> percorsoMigliore;
 
 	public Model() {
 		dao = new BordersDAO();
@@ -117,5 +118,32 @@ public class Model {
 	}
 	
 	
-
+	//versione ricorsione
+	
+	public List<Country> trovaPercorso1(Country sorgente){
+		this.percorsoMigliore = new LinkedList<Country>();
+		List<Country> parziale = new LinkedList<>();
+		parziale.add(sorgente);
+		cerca(sorgente, parziale);
+		return this.percorsoMigliore;
+	}
+	
+	private void cerca(Country sorgente, List<Country> parziale) {
+		
+		//Caso terminale
+		if(Graphs.neighborListOf(grafo, sorgente).size() == 0) {
+			this.percorsoMigliore = new LinkedList<>(parziale);
+			return;
+		}
+		
+		//altrimenti, scorro i vicini dell'utlimo inserito e provo 
+		//ad aggiungerli uno ad uno
+		for(Country vicino : Graphs.neighborListOf(grafo, sorgente)) {
+			if(!parziale.contains(vicino)) {
+				parziale.add(vicino);
+				cerca(vicino, parziale);
+				parziale.remove(parziale.size()-1);
+			}
+		}
+	}	
 }
