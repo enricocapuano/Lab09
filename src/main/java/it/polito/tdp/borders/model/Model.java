@@ -36,13 +36,10 @@ public class Model {
 		
 		Graphs.addAllVertices(grafo, dao.getVertici(anno, idMap));
 		
-		//System.out.println(grafo.vertexSet().size());
-		
 		for(Border b : dao.getCountryPairs(anno, idMap)) {
 			grafo.addEdge(b.getC1(), b.getC2());
 		}
 		
-		//System.out.println(grafo.edgeSet().size());
 	}
 
 	public SimpleGraph<Country, DefaultEdge> getGrafo() {
@@ -124,25 +121,19 @@ public class Model {
 		this.percorsoMigliore = new LinkedList<Country>();
 		List<Country> parziale = new LinkedList<>();
 		parziale.add(sorgente);
-		cerca(sorgente, parziale);
+		cerca(parziale);
 		return this.percorsoMigliore;
 	}
 	
-	private void cerca(Country sorgente, List<Country> parziale) {
+	private void cerca(List<Country> parziale) {
 		
-		//Caso terminale
-		if(Graphs.neighborListOf(grafo, sorgente).size() == 0) {
-			this.percorsoMigliore = new LinkedList<>(parziale);
-			return;
-		}
 		
-		//altrimenti, scorro i vicini dell'utlimo inserito e provo 
-		//ad aggiungerli uno ad uno
-		for(Country vicino : Graphs.neighborListOf(grafo, sorgente)) {
+		this.percorsoMigliore = new LinkedList<>(parziale);
+		
+		for(Country vicino : Graphs.neighborListOf(grafo, parziale.get(parziale.size()-1))) {
 			if(!parziale.contains(vicino)) {
 				parziale.add(vicino);
-				cerca(vicino, parziale);
-				parziale.remove(parziale.size()-1);
+				cerca(parziale);
 			}
 		}
 	}	
